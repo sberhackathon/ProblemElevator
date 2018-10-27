@@ -1,2 +1,2 @@
 # ProblemElevator
-Sberbank hackathon research ror elevators algorithm
+Sberbank hackathon research for elevators algorithm
