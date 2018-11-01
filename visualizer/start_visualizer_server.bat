@@ -1,0 +1,1 @@
+C:\Users\User\AppData\Local\Programs\Python\Python37\python.exe  -m http.server 667 --directory C:\Users\User\PycharmProjects\ProblemElevator\visualizer

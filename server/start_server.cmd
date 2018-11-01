@@ -1,1 +1,1 @@
-c:\Sdk\Python27\python.exe run.py
+c:\Python27\python.exe run.py
