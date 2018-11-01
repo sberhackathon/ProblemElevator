@@ -53,6 +53,10 @@ class Strategy(BaseStrategy):
 
         return near
 
+    def get_floors_to_go(self, elevator):
+        return list(set([p for p in elevator.passengers]))
+
+
     def on_tick(self, my_elevators, my_passengers, enemy_elevators, enemy_passengers):
         # список этажей, на которые уже едут лифты за пассажирами
         getting_passengers = set()
@@ -60,16 +64,34 @@ class Strategy(BaseStrategy):
             if elevator.state == 1:
                 getting_passengers.add(elevator.next_floor)
 
+        for passenger in my_passengers:
+            pass_elevators = [elevator for elevator in my_elevators
+                              if elevator.floor == passenger.floor and elevator.state == 3]
+
+            elevators_rating = {}
+
+            for e in pass_elevators:
+                floors_to_go = self.get_floors_to_go(e)
+                elevators_rating[e] = len(floors_to_go)
+
+                if passenger.dest_floor in floors_to_go and not passenger.has_elevator():
+                    passenger.set_elevator(e)
+
+            if not passenger.has_elevator() and len(pass_elevators) > 0:
+                for k, v in elevators_rating.items():
+                    if v < 3:# and fabs(k.next_floor - passenger.dest_floor) < 3:
+                        passenger.set_elevator(k)
+
         for elevator in my_elevators:
             no_passengers_on_floor = True
             for passenger in my_passengers:
                 if passenger.floor == elevator.floor:
                     no_passengers_on_floor = False
 
-                if (passenger.floor == elevator.floor and
-                        elevator.state == 3 and
-                        not passenger.has_elevator()):
-                    passenger.set_elevator(elevator)
+                # if (passenger.floor == elevator.floor and
+                #         elevator.state == 3 and
+                #         not passenger.has_elevator()):
+                #     passenger.set_elevator(elevator)
 
             if elevator.state == 3:
                 if (len(elevator.passengers) > 0 and
