@@ -57,40 +57,57 @@ class Strategy(BaseStrategy):
     #
     #     dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
     #     return dest
+    def get_floors_to_go(self, elevator):
+        return list(set([p.dest_floor for p in elevator.passengers]))
+
+    def distance_from_floor_to_mass_floors(self, floors, floor):
+        if len(floors) == 0:
+            return 0
+        return sum([fabs(f - floor) for f in floors]) / len(floors)
 
     def on_tick(self, my_elevators, my_passengers, enemy_elevators, enemy_passengers):
+        my_passengers = my_passengers + enemy_passengers
         # список этажей, на которые уже едут лифты за пассажирами
         getting_passengers = set()
         for elevator in my_elevators:
             if elevator.state == 1:
                 getting_passengers.add(elevator.next_floor)
 
+        for passenger in my_passengers:
+            pass_elevators = [elevator for elevator in my_elevators
+                              if elevator.floor == passenger.floor and elevator.state == 3]
+
+            elevators_rating = {}
+
+            for e in pass_elevators:
+                floors_to_go = self.get_floors_to_go(e)
+                elevators_rating[e] = len(floors_to_go)
+
+                if passenger.dest_floor in floors_to_go and not passenger.has_elevator():
+                    passenger.set_elevator(e)
+
+            if not passenger.has_elevator() and len(pass_elevators) > 0:
+                for k, v in elevators_rating.items():
+                    distance = self.distance_from_floor_to_mass_floors(self.get_floors_to_go(k), passenger.dest_floor)
+                    if v < 3 and distance < 4 or len(pass_elevators) == 1:
+                        passenger.set_elevator(k)
+
         for elevator in my_elevators:
             no_passengers_on_floor = True
 
-            all_passengers = my_passengers + enemy_passengers
+            for passenger in my_passengers:
+                if passenger.floor == elevator.floor and passenger.state in [1, 2, 3]:
+                    no_passengers_on_floor = False
 
-            if len(all_passengers) > 0:
-                for passenger in all_passengers:
-                    if passenger.floor == elevator.floor:
-                        no_passengers_on_floor = False
+            if elevator.state == 3:
+                if no_passengers_on_floor or len(elevator.passengers) > 19:
+                    go_to = self.nearest_floor_with_pass(elevator.passengers, elevator.floor)
+                    elevator.go_to_floor(go_to)
 
-                    if (passenger.floor == elevator.floor and
-                            elevator.state == 3 and
-                            not passenger.has_elevator()):
-                        passenger.set_elevator(elevator)
-
-                    if elevator.state == 3:
-                        if no_passengers_on_floor or len(elevator.passengers) > 19:
-                            go_to = self.nearest_floor_with_pass(elevator.passengers, elevator.floor)
-                            print(elevator.id, 'on', elevator.floor, 'go to ', go_to)
-                            elevator.go_to_floor(go_to)
-
-                    if len(elevator.passengers) == 0 and no_passengers_on_floor:
-                        res = []
-                        for p in all_passengers:
-                            if not p.has_elevator() and p.state == 1:
-                                res.append(p)
-                        go_to = self.nearest_floor_without_pass(res, elevator.floor, getting_passengers)
-                        print(elevator.id, 'no passengers on floor', elevator.floor, 'go to ', go_to)
-                        elevator.go_to_floor(go_to)
+                if len(elevator.passengers) == 0 and no_passengers_on_floor:
+                    res = []
+                    for p in my_passengers:
+                        if not p.has_elevator() and p.state == 1:
+                            res.append(p)
+                    go_to = self.nearest_floor_without_pass(res, elevator.floor, getting_passengers)
+                    elevator.go_to_floor(go_to)
