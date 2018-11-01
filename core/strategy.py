@@ -36,7 +36,10 @@ class Strategy(BaseStrategy):
                 rating[p.dest_floor] = fabs(floor - p.dest_floor) * 10
 
         # функция берет ключ с максимальным значением (самый вкусный пункт назначения)
-        dest = max(rating.items(), key=operator.itemgetter(1))[0]
+        if len(rating) > 0:
+            dest = max(rating.items(), key=operator.itemgetter(1))[0]
+        else:
+            dest = near
         # если ближайший по пути к самому вкусному, останавливаемся
         if (dest < near < floor or
                 dest > near > floor):
@@ -54,10 +57,18 @@ class Strategy(BaseStrategy):
         return near
 
     def get_floors_to_go(self, elevator):
-        return list(set([p for p in elevator.passengers]))
+        return list(set([p.dest_floor for p in elevator.passengers]))
 
+    def distance_from_floor_to_mass_floors(self, floors, floor):
+        if len(floors) == 0:
+            return 0
+        print(floors)
+        print(sum([fabs(f - floor) for f in floors]))
+        return sum([fabs(f - floor) for f in floors])/len(floors)
 
     def on_tick(self, my_elevators, my_passengers, enemy_elevators, enemy_passengers):
+
+        my_passengers = my_passengers + enemy_passengers
         # список этажей, на которые уже едут лифты за пассажирами
         getting_passengers = set()
         for elevator in my_elevators:
@@ -79,24 +90,21 @@ class Strategy(BaseStrategy):
 
             if not passenger.has_elevator() and len(pass_elevators) > 0:
                 for k, v in elevators_rating.items():
-                    if v < 3:# and fabs(k.next_floor - passenger.dest_floor) < 3:
+                    distance = self.distance_from_floor_to_mass_floors(self.get_floors_to_go(k), passenger.dest_floor)
+                    print(distance)
+                    if v < 3 and distance < 4:# or len(pass_elevators) == 1:
                         passenger.set_elevator(k)
 
         for elevator in my_elevators:
             no_passengers_on_floor = True
             for passenger in my_passengers:
-                if passenger.floor == elevator.floor:
+                if passenger.floor == elevator.floor:# and passenger.state in [1, 3]:
                     no_passengers_on_floor = False
-
-                # if (passenger.floor == elevator.floor and
-                #         elevator.state == 3 and
-                #         not passenger.has_elevator()):
-                #     passenger.set_elevator(elevator)
 
             if elevator.state == 3:
                 if (len(elevator.passengers) > 0 and
                         (elevator.time_on_floor > 1000 or no_passengers_on_floor) or
-                        len(elevator.passengers) > 9):
+                        len(elevator.passengers) > 15):
                     go_to = self.nearest_floor_with_pass(elevator.passengers, elevator.floor)
                     print(elevator.id, 'on', elevator.floor, 'go to ', go_to)
                     elevator.go_to_floor(go_to)
@@ -109,14 +117,3 @@ class Strategy(BaseStrategy):
                     go_to = self.nearest_floor_without_pass(res, elevator.floor, getting_passengers)
                     print(elevator.id, 'no passengers on floor', elevator.floor, 'go to ', go_to)
                     elevator.go_to_floor(go_to)
-
-            # if elevator.state == 1:
-            #     if elevator.floor > elevator.next_floor:
-            #         direction = "down"
-            #     elif elevator.floor == elevator.next_floor:
-            #         direction = "on_floor"
-            #     else:
-            #         direction = "up"
-            #
-            #     if len(elevator.passengers) < 5 and not no_passengers_on_floor:
-            #         res = []
