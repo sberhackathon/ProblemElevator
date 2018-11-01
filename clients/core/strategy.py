@@ -53,7 +53,10 @@ class Strategy(BaseStrategy):
         if len(floor_value) > 0:
             dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
         else:
-            dest = floor + 1
+            if floor > 8:
+                dest = floor - 1
+            else:
+                dest = floor + 1
 
         return dest
 
