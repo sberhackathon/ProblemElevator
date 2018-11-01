@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from core.base_strategy import BaseStrategy
 from math import fabs
 import operator
@@ -33,21 +35,16 @@ class Strategy(BaseStrategy):
             else:
                 rating[p.dest_floor] = fabs(floor - p.dest_floor) * 10
 
-        print('===')
-        for k, v in rating.items():
-            print(k, v)
-        print('---')
+        # функция берет ключ с максимальным значением (самый вкусный пункт назначения)
         dest = max(rating.items(), key=operator.itemgetter(1))[0]
-        # dest_val = sorted(rating.values(), lambda x: -x)[0]
-        # dest = {(k, v) for k, v in rating.items() if v == dest_val}.pop()[0]
-        print(dest)
-        print('===')
+        # если ближайший по пути к самому вкусному, останавливаемся
         if (dest < near < floor or
                 dest > near > floor):
             return near
         else:
             return dest
 
+    # если на этаже нет людей, едем на этаж где они есть
     def nearest_floor_without_pass(self, passengers, floor, not_interested):
         near = 100
         for p in passengers:
@@ -57,8 +54,8 @@ class Strategy(BaseStrategy):
         return near
 
     def on_tick(self, my_elevators, my_passengers, enemy_elevators, enemy_passengers):
+        # список этажей, на которые уже едут лифты за пассажирами
         getting_passengers = set()
-
         for elevator in my_elevators:
             if elevator.state == 1:
                 getting_passengers.add(elevator.next_floor)
@@ -101,34 +98,3 @@ class Strategy(BaseStrategy):
             #
             #     if len(elevator.passengers) < 5 and not no_passengers_on_floor:
             #         res = []
-
-# class Strategy(BaseStrategy):
-#     max_floor = 16
-#
-#     def on_tick(self, my_elevators, my_passengers, enemy_elevators, enemy_passengers):
-#          for elevator in my_elevators:
-#             if elevator.id % 2 == 0:
-#                 d = elevator.id
-#             else: d = elevator.id - 1
-#
-#             print(d)
-#
-#             if elevator.floor == 1:
-#                 going_to = (d + 1) * 2
-#             elif elevator.floor == (d + 1) * 2:
-#                 going_to = (d + 1) * 2 + 1
-#             else:
-#                 going_to = 1
-#
-#             #print(elevator.id, going_to)
-#             if elevator.state == 3 and len(elevator.passengers) > 2 or elevator.time_on_floor > 2000:
-#                 #   print('elevator ', d, ' going to ', going_to)
-#                 elevator.go_to_floor(going_to)
-#
-#             passengers = [p for p in my_passengers if p.state < 5]
-#             for p in passengers:
-#                 if p.floor == 1:
-#                     #      print('pass going', p.dest_floor, 'elevator', p.dest_floor / 2 - 1)
-#                     p.set_elevator(p.dest_floor / 2 - 1)
-#                 elif p.dest_floor == 1:
-#                     p.set_elevator(p.from_floor / 2 - 1)
