@@ -1,0 +1,1 @@
+c:\Sdk\Python37\python.exe run.py
