@@ -33,30 +33,29 @@ class Strategy(BaseStrategy):
         else:
             return dest
 
-    #если на этаже нет людей, едем на этаж где они есть
-    def nearest_floor_without_pass(self, passengers, floor, not_interested):
-        near = 100
-        for p in passengers:
-            if fabs(floor - p.dest_floor) < near and p.dest_floor not in not_interested:
-                near = p.dest_floor
-
-        return near
-
+    # #если на этаже нет людей, едем на этаж где они есть
     # def nearest_floor_without_pass(self, passengers, floor, not_interested):
-    #     floor_value = {}
+    #     near = 100
     #     for p in passengers:
-    #         if p.dest_floor in floor_value.keys() and p.dest_floor not in not_interested:
-    #             floor_value[p.dest_floor] = floor_value[p.dest_floor] + fabs(floor - p.dest_floor) * 10
-    #         elif p.dest_floor not in not_interested:
-    #             floor_value[p.dest_floor] = fabs(floor - p.dest_floor) * 10
+    #         if fabs(floor - p.dest_floor) < near and p.dest_floor not in not_interested:
+    #             near = p.dest_floor
     #
-    #     if len(floor_value) > 0:
-    #         dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
-    #     else:
-    #         dest = near
-    #
-    #     dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
-    #     return dest
+    #     return near
+
+    def nearest_floor_without_pass(self, passengers, floor, not_interested):
+        floor_value = {}
+        for p in passengers:
+            if p.dest_floor in floor_value.keys() and p.dest_floor not in not_interested:
+                floor_value[p.dest_floor] = floor_value[p.dest_floor] + fabs(floor - p.dest_floor) * 10
+            elif p.dest_floor not in not_interested:
+                floor_value[p.dest_floor] = fabs(floor - p.dest_floor) * 10
+
+        if len(floor_value) > 0:
+            dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
+        else:
+            dest = floor + 1
+
+        return dest
 
     def on_tick(self, my_elevators, my_passengers, enemy_elevators, enemy_passengers):
         # список этажей, на которые уже едут лифты за пассажирами
