@@ -60,22 +60,22 @@ class Strategy(BaseStrategy):
 
                 elevator = my_elevators[d]
                 going_to = -1
-                if elevator.state == 3:
-                    if elevator.floor == 1:
-                        going_to = (d + 1)*2 - 1
-                        Strategy.elevators_direction[d] = 1
-                    elif elevator.floor == (d + 1)*2 - 1:
-                        going_to = (d + 1)*2
-                        Strategy.elevators_direction[d] = 1
-                    else:
-                        going_to = 1
-                        Strategy.elevators_direction[d] = -1
+                if elevator.floor == 1:
+                    going_to = (d + 1) * 2 - 1
+                    Strategy.elevators_direction[d] = 1
+                elif elevator.floor == (d + 1) * 2 - 1:
+                    going_to = (d + 1) * 2
+                    Strategy.elevators_direction[d] = 1
+                else:
+                    going_to = 1
+                    Strategy.elevators_direction[d] = -1
 
+                if elevator.state == 3 and len(elevator.passengers) > 2:
                     elevator.go_to_floor(going_to)
+
                 passengers = [p for p in my_passengers if p.state < 5
                               and p.from_floor == elevator.floor
-                              and p.dest_floor == going_to
-                              and Strategy.fdirection(p.from_floor, p.dest_floor) == Strategy.elevators_direction[d]]
-
+                              and p.dest_floor == going_to]
+                print(len(passengers))
                 for p in passengers:
                     p.set_elevator(elevator)
