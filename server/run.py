@@ -7,10 +7,11 @@ from datetime import datetime, timedelta
 import tornado.gen
 import tornado.gen
 import tornado.ioloop
-from core import settings
-from core.api import API
 from tornado.iostream import StreamClosedError
 from tornado.tcpserver import TCPServer
+
+from server.core import settings
+from server.core.api import API
 
 
 class Client(object):
@@ -179,11 +180,9 @@ class WorldHandler(object):
                 'result': self.api.get_score_state()
             }
             self.write_score(score_result)
-            print
-            score_result
+            print(score_result)
         except Exception as e:
-            print
-            e
+            print(e)
 
         self.shutdown()
 

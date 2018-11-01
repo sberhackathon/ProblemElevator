@@ -3,7 +3,7 @@ import os
 import socket
 from asyncio import get_event_loop, open_connection
 
-from core.api import API
+from clients.core.api import API
 
 
 class Client:
