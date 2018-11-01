@@ -7,7 +7,7 @@ class Strategy(BaseStrategy):
 
     def nearest_floor_with_pass(self, passengers, floor):
 
-        near = 100
+        near = 15
 
         for p in passengers:
             if fabs(floor - p.dest_floor) < near:
