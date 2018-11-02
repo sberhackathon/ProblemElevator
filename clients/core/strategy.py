@@ -121,8 +121,8 @@ class Strategy(BaseStrategy):
                     if not p.has_elevator() and p.state == 1:
                         res.append(p)
                 go_to = self.nearest_floor_without_pass(res, elevator.floor, next_floor_set)
-                if (elevator.next_floor < go_to < elevator.floor or
-                        elevator.next_floor > go_to > elevator.floor):
+                if (elevator.next_floor <= go_to <= elevator.floor or
+                        elevator.next_floor >= go_to >= elevator.floor):
                     elevator.go_to_floor(go_to)
 
 
