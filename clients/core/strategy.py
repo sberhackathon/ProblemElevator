@@ -35,27 +35,23 @@ class Strategy(BaseStrategy):
 
     #если на этаже нет людей, едем на этаж где они есть
     def nearest_floor_without_pass(self, passengers, floor, not_interested):
-        near = 15
+        floor_value = {}
         for p in passengers:
-            if fabs(floor - p.dest_floor) < near and p.dest_floor not in not_interested:
-                near = p.dest_floor
-        return near
+            if p.dest_floor in floor_value.keys() and p.dest_floor not in not_interested:
+                floor_value[p.dest_floor] = floor_value[p.dest_floor] + fabs(floor - p.dest_floor) * 10
+            elif p.dest_floor not in not_interested:
+                floor_value[p.dest_floor] = fabs(floor - p.dest_floor) * 10
 
-    # def nearest_floor_without_pass(self, passengers, floor, not_interested):
-    #     floor_value = {}
-    #     for p in passengers:
-    #         if p.dest_floor in floor_value.keys() and p.dest_floor not in not_interested:
-    #             floor_value[p.dest_floor] = floor_value[p.dest_floor] + fabs(floor - p.dest_floor) * 10
-    #         elif p.dest_floor not in not_interested:
-    #             floor_value[p.dest_floor] = fabs(floor - p.dest_floor) * 10
-    #
-    #     if len(floor_value) > 0:
-    #         dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
-    #     else:
-    #         dest = near
-    #
-    #     dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
-    #     return dest
+        if len(floor_value) > 0:
+            dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
+        else:
+            if floor > 8:
+                dest = floor - 1
+            else:
+                dest = floor + 1
+
+        return dest
+
     def get_floors_to_go(self, elevator):
         return list(set([p.dest_floor for p in elevator.passengers]))
 
