@@ -5,9 +5,16 @@ from core.base_strategy import BaseStrategy
 
 class Strategy(BaseStrategy):
 
+    def is_near(self, floor, floors) -> bool:
+        for f in floors:
+            if abs(f - floor) == 1:
+                return True
+
+        return False
+
     def nearest_floor_with_pass(self, passengers, floor):
 
-        near = 100
+        near = 15
 
         for p in passengers:
             if fabs(floor - p.dest_floor) < near:
@@ -35,28 +42,23 @@ class Strategy(BaseStrategy):
 
     #если на этаже нет людей, едем на этаж где они есть
     def nearest_floor_without_pass(self, passengers, floor, not_interested):
-        near = 100
+        floor_value = {}
         for p in passengers:
-            if fabs(floor - p.dest_floor) < near and p.dest_floor not in not_interested:
-                near = p.dest_floor
+            if p.dest_floor in floor_value.keys() and p.dest_floor not in not_interested:
+                floor_value[p.dest_floor] = floor_value[p.dest_floor] + fabs(floor - p.dest_floor) * 10
+            elif p.dest_floor not in not_interested:
+                floor_value[p.dest_floor] = fabs(floor - p.dest_floor) * 10
 
-        return near
+        if len(floor_value) > 0:
+            dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
+        else:
+            if floor > 8:
+                dest = floor - 1
+            else:
+                dest = floor + 1
 
-    # def nearest_floor_without_pass(self, passengers, floor, not_interested):
-    #     floor_value = {}
-    #     for p in passengers:
-    #         if p.dest_floor in floor_value.keys() and p.dest_floor not in not_interested:
-    #             floor_value[p.dest_floor] = floor_value[p.dest_floor] + fabs(floor - p.dest_floor) * 10
-    #         elif p.dest_floor not in not_interested:
-    #             floor_value[p.dest_floor] = fabs(floor - p.dest_floor) * 10
-    #
-    #     if len(floor_value) > 0:
-    #         dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
-    #     else:
-    #         dest = near
-    #
-    #     dest = max(floor_value.items(), key=operator.itemgetter(1))[0]
-    #     return dest
+        return dest
+
     def get_floors_to_go(self, elevator):
         return list(set([p.dest_floor for p in elevator.passengers]))
 
