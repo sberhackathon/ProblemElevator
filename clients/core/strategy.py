@@ -5,13 +5,6 @@ from core.base_strategy import BaseStrategy
 
 class Strategy(BaseStrategy):
 
-    def is_near(self, floor, floors) -> bool:
-        for f in floors:
-            if abs(f - floor) == 1:
-                return True
-
-        return False
-
     def nearest_floor_with_pass(self, passengers, floor):
 
         near = 15
@@ -34,8 +27,8 @@ class Strategy(BaseStrategy):
         else:
             dest = near
         # если ближайший по пути к самому вкусному, останавливаемся
-        if (dest < near < floor or
-                dest > near > floor):
+        if (dest <= near <= floor or
+                dest >= near >= floor):
             return near
         else:
             return dest
