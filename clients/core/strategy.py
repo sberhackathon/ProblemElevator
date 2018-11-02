@@ -111,3 +111,11 @@ class Strategy(BaseStrategy):
                             res.append(p)
                     go_to = self.nearest_floor_without_pass(res, elevator.floor, getting_passengers)
                     elevator.go_to_floor(go_to)
+
+            if elevator.state == 1 and len(elevator.passengers) == 0:
+                res = []
+                for p in my_passengers:
+                    if not p.has_elevator() and p.state == 1:
+                        res.append(p)
+                go_to = self.nearest_floor_without_pass(res, elevator.floor, getting_passengers)
+                elevator.go_to_floor(go_to)
